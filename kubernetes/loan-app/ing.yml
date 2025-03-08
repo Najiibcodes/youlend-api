@@ -1,0 +1,30 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: loan-system-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+#     # kubernetes.io/ingress.class: "nginx"
+# spec:
+#   # ingressClassName: nginx
+#   rules:
+#   - host: loan-app.localhost
+#     http:
+#       paths:
+#       - path: /api(/|$)(.*)
+#         pathType: ImplementationSpecific
+#         backend:
+#           service:
+#             name: loan-api
+#             port:
+#               number: 5000
+#       - path: /()(.*)
+#         pathType: ImplementationSpecific
+#         backend:
+#           service:
+#             name: loan-website
+#             port:
+#               number: 8080

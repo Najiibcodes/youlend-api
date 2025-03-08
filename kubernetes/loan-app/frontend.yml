@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-website
+  labels:
+    app: loan-website
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loan-website
+  template:
+    metadata:
+      labels:
+        app: loan-website
+    spec:
+      containers:
+      - name: loan-website
+        image: moabukar/loan-website:6cb8f37
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4200
+        command: ["http-server", "dist/loan-website/browser", "-p", "4200", "--proxy", "http://loan-api.default.svc.cluster.local:5000"]
+        resources:
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        env:
+        - name: PROXY
+          value: "/api:http://loan-api.default.svc.cluster.local:5000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-website
+spec:
+  selector:
+    app: loan-website
+  ports:
+  - port: 8080
+    targetPort: 4200
+  type: ClusterIP

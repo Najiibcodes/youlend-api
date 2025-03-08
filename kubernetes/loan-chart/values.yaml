@@ -1,0 +1,66 @@
+# Global settings
+# global:
+#   domain: loan-system.127.0.0.1.nip.io
+
+# Frontend configuration
+frontend:
+  name: loan-website
+  replicaCount: 1
+  image:
+    repository: moabukar/loan-website
+    tag: 6cb8f37
+    pullPolicy: IfNotPresent
+  service:
+    port: 8080
+    targetPort: 4200
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  proxy:
+    path: "/api"
+    target: "http://loan-api:5000/api"
+
+# Backend configuration
+backend:
+  name: loan-api
+  replicaCount: 1
+  image:
+    repository: moabukar/loan-api
+    tag: 6cb8f37
+    pullPolicy: IfNotPresent
+  service:
+    port: 5000
+    targetPort: 5000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  env:
+    ASPNETCORE_ENVIRONMENT: "Development"
+    ASPNETCORE_URLS: "http://+:5000"
+
+# # Ingress configuration
+# ingress:
+#   enabled: true
+#   hosts:
+#     - host: loan-system.127.0.0.1.nip.io
+#       paths:
+#         - /
+
+ingress:
+  enabled: false
+
+
+# # Certificate configuration
+# certificate:
+#   enabled: true
+#   issuer:
+#     name: self-signed
+#     kind: ClusterIssuer

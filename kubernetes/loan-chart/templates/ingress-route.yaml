@@ -1,0 +1,45 @@
+# {{- if .Values.ingress.enabled }}
+# {{- if .Values.ingress.http.enabled }}
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: {{ .Release.Name }}-http
+#   labels:
+#     app: {{ .Release.Name }}
+#     chart: {{ .Chart.Name }}
+#     release: {{ .Release.Name }}
+# spec:
+#   entryPoints:
+#   - web
+#   routes:
+#   - match: Host(`{{ .Values.global.domain }}`)
+#     kind: Rule
+#     services:
+#     - name: {{ .Values.frontend.name }}
+#       port: {{ .Values.frontend.service.port }}
+# {{- end }}
+# ---
+# {{- if .Values.ingress.https.enabled }}
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: {{ .Release.Name }}-https
+#   labels:
+#     app: {{ .Release.Name }}
+#     chart: {{ .Chart.Name }}
+#     release: {{ .Release.Name }}
+# spec:
+#   entryPoints:
+#   - websecure
+#   routes:
+#   - match: Host(`{{ .Values.global.domain }}`)
+#     kind: Rule
+#     services:
+#     - name: {{ .Values.frontend.name }}
+#       port: {{ .Values.frontend.service.port }}
+#   tls:
+#     secretName: cert-{{ .Release.Name }}
+#     domains:
+#     - main: {{ .Values.global.domain }}
+# {{- end }}
+# {{- end }}

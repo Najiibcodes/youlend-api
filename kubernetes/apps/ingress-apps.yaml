@@ -1,0 +1,154 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: loan-system-http
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`loan-system.127.0.0.1.nip.io`)
+    kind: Rule
+    services:
+    - name: loan-website
+      port: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: loan-system-https
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`loan-system.127.0.0.1.nip.io`)
+    kind: Rule
+    services:
+    - name: loan-website
+      port: 8443
+  tls:
+    secretName: cert-loan-system
+    domains:
+    - main: loan-system.127.0.0.1.nip.io
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-http
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`traefik.127.0.0.1.nip.io`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+    kind: Rule
+    services:
+    - name: api@internal
+      kind: TraefikService
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-https
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`traefik.127.0.0.1.nip.io`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))
+    kind: Rule
+    services:
+    - name: api@internal
+      kind: TraefikService
+  tls:
+    secretName: cert-traefik
+    domains:
+    - main: traefik.127.0.0.1.nip.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selfsigned-cert
+spec:
+  dnsNames:
+  - traefik.127.0.0.1.nip.io
+  - argocd.127.0.0.1.nip.io
+  - prometheus.127.0.0.1.nip.io
+  - grafana.127.0.0.1.nip.io
+  - dashboard.127.0.0.1.nip.io
+  - loan-system.127.0.0.1.nip.io
+  secretName: cert-whoami
+  issuerRef:
+    name: self-signed
+    kind: ClusterIssuer
+
+---
+## cert for Traefik
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-cert
+spec:
+  dnsNames:
+  - traefik.127.0.0.1.nip.io
+  secretName: cert-traefik
+  issuerRef:
+    name: self-signed
+    kind: ClusterIssuer
+---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: prometheus-ingress
+#   namespace: monitoring
+# spec:
+#   entryPoints:
+#   - web
+#   routes:
+#   - match: Host(`prometheus.127.0.0.1.nip.io`)
+#     kind: Rule
+#     services:
+#     - name: prometheus-server
+#       port: 80
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: grafana-ingress
+#   namespace: monitoring
+# spec:
+#   entryPoints:
+#   - web
+#   routes:
+#   - match: Host(`grafana.127.0.0.1.nip.io`)
+#     kind: Rule
+#     services:
+#     - name: grafana
+#       port: 80
+
+---
+# apiVersion: traefik.io/v1alpha1
+# kind: ServersTransport
+# metadata:
+#   name: dashboard-transport
+#   namespace: kubernetes-dashboard
+# spec:
+#   insecureSkipVerify: true
+# ---
+# apiVersion: traefik.io/v1alpha1
+# kind: IngressRoute
+# metadata:
+#   name: kubernetes-dashboard
+#   namespace: kubernetes-dashboard
+# spec:
+#   entryPoints:
+#     - websecure
+#   routes:
+#     - match: Host(`dashboard.127.0.0.1.nip.io`)
+#       kind: Rule
+#       services:
+#         - name: kubernetes-dashboard
+#           port: 443
+#           scheme: https
+#           serversTransport: dashboard-transport
+#   tls:
+#     certResolver: default
+---

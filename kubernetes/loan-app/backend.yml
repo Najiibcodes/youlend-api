@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-api
+  labels:
+    app: loan-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loan-api
+  template:
+    metadata:
+      labels:
+        app: loan-api
+    spec:
+      containers:
+      - name: loan-api
+        image: moabukar/loan-api:6cb8f37
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_URLS
+          value: "http://+:5000"
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-api
+spec:
+  selector:
+    app: loan-api
+  ports:
+  - port: 5000
+    targetPort: 5000
+  type: ClusterIP

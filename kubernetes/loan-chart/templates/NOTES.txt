@@ -1,0 +1,19 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To access your application:
+{{- if .Values.ingress.enabled }}
+  {{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+  {{- end }}
+{{- else }}
+  kubectl port-forward svc/{{ .Values.frontend.name }} 8081:{{ .Values.frontend.service.port }}
+  
+  Then access the application at: http://localhost:8081
+{{- end }}
+
+To access the API directly:
+  kubectl port-forward svc/{{ .Values.backend.name }} 8080:{{ .Values.backend.service.port }}
+  
+  Then access the API at: http://localhost:8080/api/loan/all
